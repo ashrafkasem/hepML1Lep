@@ -205,7 +205,7 @@ def doLegend(signalHists, BKGHists, DataHists, textSize=0.035, columns=1,showSF=
     return leg
 
 
-def doalphabetagamma(histlist,alpha,beta,gamma):
+def doalphabetagammadelta(histlist,alpha,beta,gamma,delta):
     scaled_List = []
     for h in histlist : 
         hname = h.GetName()
@@ -214,23 +214,23 @@ def doalphabetagamma(histlist,alpha,beta,gamma):
         elif 'SemiLepTT' in hname : 
             h.Scale(alpha)
         # not to scale QCD with alpha,beta,gamma
-        elif 'QCD' not in hname : 
-            h.Scale(gamma)
+        elif 'QCD' in hname : 
+            h.Scale(delta)
         else: 
-            h.Scale(1.0)
+            h.Scale(gamma)
         scaled_List.append(h)
     return scaled_List
 
-def doalphabetagamma_0b(histlist,alpha,beta):
+def doalphabetagammadelta_0b(histlist,alpha,beta,delta):
     scaled_List = []
     for h in histlist : 
         hname = h.GetName()
         if 'WJ' in hname : 
             h.Scale(beta)
-        elif 'QCD' not in hname : 
-            h.Scale(alpha)
+        elif 'QCD' in hname : 
+            h.Scale(delta)
         else: 
-            h.Scale(1.0)
+            h.Scale(alpha)
         scaled_List.append(h)
     return scaled_List
 
@@ -256,10 +256,13 @@ def doShadedUncertainty(h):
     #ret.Draw("PE2 SAME")
     return ret
 
-def makeStack(histList):
+def makeStack(histList,replaceing = None):
     '''  A functon to make a THStack for background and set it's style '''
     s = ROOT.THStack("s","")
     for bkghist in histList :
+        if replaceing != None: 
+            if bkghist.GetName() == replaceing.GetName() : 
+                bkghist = replaceing
         s.Add(bkghist)
     s.SetTitle('THStack')
     return s 
@@ -275,9 +278,11 @@ def hadd1ds(histList,alphabetagamma=False,multib = True):
             if multib : 
                 if 'DiLepTT' in hname : h.Scale(beta)
                 elif 'SemiLepTT' in hname : h.Scale(alpha)
+                elif 'QCD' in hname : h.Scale(delta)
                 else : h.Scale(gamma)
             else : 
                 if 'WJ' in hname : h.Scale(beta)
+                elif 'QCD' in hname : h.Scale(delta)
                 else : h.Scale(alpha)
         sumbkg.Add(h)
     #sumbkg.Draw('goff')
@@ -296,9 +301,11 @@ def hadd2ds(histList,alphabetagamma=False,multib = True):
             if multib : 
                 if 'DiLepTT' in hname : h.Scale(beta)
                 elif 'SemiLepTT' in hname : h.Scale(alpha)
+                elif 'QCD' in hname : h.Scale(delta)
                 else : h.Scale(gamma)
             else : 
                 if 'WJ' in hname : h.Scale(beta)
+                elif 'QCD' in hname : h.Scale(delta)
                 else : h.Scale(alpha)
         sumbkg.Add(h)
     #sumbkg.Draw('goff')
@@ -326,6 +333,25 @@ def rocCurve(hS, hB):
     del hist
     return rocCurve
 
+def bkgFromData(bkglist,total, data, bkg):
+    # remove selected bkg from the total
+    total_minus_one = ROOT.TH1F(total.Clone())
+    total_minus_one.Reset()
+    for bhist in bkglist : 
+        if bhist.GetName() == bkg.GetName() : continue
+        else  : total_minus_one.Add(bhist)
+    # remove the sbtracted total from data
+    bkg_fromdata = ROOT.TH1F(data.Clone())
+    bkg_fromdata.Add(total_minus_one,-1)
+    # simple trick to copy the style
+    bkg_fromdata_ = ROOT.TH1F(bkg.Clone())
+    bkg_fromdata_.Reset()
+    bkg_fromdata_.Add(bkg_fromdata)
+    # return the new total
+    total = ROOT.TH1F(total_minus_one.Clone())
+    total.Add(bkg_fromdata_)
+    # correct the statistical error 
+    return bkg_fromdata_ , total
 
 import argparse
 
@@ -336,7 +362,7 @@ if __name__ == '__main__':
     parser.add_argument('--lumi', help='integrated luminosity',default='35.9', metavar='lumi')
     parser.add_argument('--outdir', help='output directory',default=None,metavar='outdir')
     parser.add_argument('--scale_bkgd_toData','--sbtd', help="scale the over all bkg to data",default=False, action='store_true')
-    parser.add_argument('--do_alphabetagamma','--apg', help='use alpha/beta/gamma scale',default=False, action='store_true')
+    parser.add_argument('--do_alphabetagamma','--apg', help='use alpha/beta/gamma/delta scale',default=False, action='store_true')
     parser.add_argument('--blind',help='blind data',default=False, action='store_true')
     parser.add_argument('--doRatio','--ratio', help='do data/MC ration plot',default=False, action='store_true')
     parser.add_argument('--YmaX', help='Yaxis maximum',default='0.0', metavar='YmaX')
@@ -350,12 +376,15 @@ if __name__ == '__main__':
     parser.add_argument('--alpha', help='scale factor alpha',default='0.0', metavar='alpha')
     parser.add_argument('--beta', help='scale factor alpha',default='0.0', metavar='beta')
     parser.add_argument('--gamma', help='scale factor alpha',default='0.0', metavar='gamma')
+    parser.add_argument('--delta', help='scale factor delta',default='0.0', metavar='delta')
     parser.add_argument("-j", "--jobs", default=0, help="Use N threads",metavar='jobs')
     parser.add_argument("-Y", "--year", default=2016, help="which ear to run on 2016/17/18",metavar='year')
     parser.add_argument("--mb", "--multib", default=False, help="multple b or zero b analysis",action='store_true')    
     parser.add_argument("--showSF", default=False, help="show the SF or not",action='store_true')    
     parser.add_argument("--showCount", default=False, help="show the counts in legend",action='store_true')
     parser.add_argument('--Smass', nargs='+',default=[],help="the mas of the signal hypothesis")
+    parser.add_argument('--FromData','--FD', default=None, help="if you need to take one background from data, the other backgrounds will be subtracted from data and the differece will be the specified one",metavar='FromData')
+    parser.add_argument('--remove',nargs='+',default=[],help="if you would remove certain background for example QCD WJ and so on")
 
     args = parser.parse_args()
 
@@ -444,12 +473,16 @@ if __name__ == '__main__':
     if args.blind : 
         del All_files['Data']
         doRatio = False
+    if len(args.remove) != 0 : 
+        for rm_item in args.remove :
+             del All_files[rm_item]
+
     varList = [] 
     exec(open(args.varList).read())
     if args.mvarList != None : 
         exec(open(args.mvarList).read())
  
-    alpha,beta,gamma =  float(args.alpha),float(args.beta),float(args.gamma)#0.83 ,1.01 , 0.74
+    alpha,beta,gamma,delta =  float(args.alpha),float(args.beta),float(args.gamma),float(args.delta)#0.83 ,1.01 , 0.74
 
 
     tdrstyle.setTDRStyle()
@@ -538,7 +571,6 @@ if __name__ == '__main__':
             if any('AddCut' in e for e in var) : 
                 index0,_ = findItem(var , 'AddCut')
                 addicut = var[index0][1] 
-
             All_files[key]['chain'].Draw(var[1] +' >> '+key+var[0], All_files[key]['scale']+'*'+lum+'*(Sum$('+adcuts+addicut+'))',"goff")
             #print (hist)
             ROOT.gROOT.ForceStyle()
@@ -586,9 +618,9 @@ if __name__ == '__main__':
         apply = False
         if do_alphabetagamma : 
             if args.mb : 
-                stackableHists_ = doalphabetagamma(stackableHists,alpha,beta,gamma)
+                stackableHists_ = doalphabetagammadelta(stackableHists,alpha,beta,gamma,delta)
             else : 
-                stackableHists_ = doalphabetagamma_0b(stackableHists,alpha,beta)
+                stackableHists_ = doalphabetagammadelta_0b(stackableHists,alpha,beta,delta)
             if ('Data' in All_files.keys() and scale_bkgd_toData ) : 
                 apply = False
                 sf = doScaleBkgNormData(All_files['Data']['hist'][i],stackableHists_,total,Apply = apply)
@@ -601,8 +633,15 @@ if __name__ == '__main__':
         # scale the total backgrounds to data
         total.Scale(sf if apply == True else 1.0 )
         total.SetName("totalBKG_scaled")
+        # if you want to get one of the backgrounds from data
+        histFromData = None
+        if args.FromData != None and 'Data' in All_files.keys() and not TH2DHist:
+            histFromData , total = bkgFromData(stackableHists_,total,All_files['Data']['hist'][i],All_files[args.FromData]['hist'][i])
         # make stack of the background (sorted)
-        stack = makeStack(stackableHists)
+        stack = makeStack(stackableHists,histFromData)
+        if histFromData != None :
+            histFromData.SetName(args.FromData+"_FromData")
+            histFromData.Write()
         # write them 
         stack.Write()
         total.Write()
@@ -793,7 +832,7 @@ if __name__ == '__main__':
             Hists_FullList = []
             Hists_FullList += SignalHists if SignalHists else []
             Hists_FullList += stackableHists if stackableHists else  []
-            Hists_FullList += All_files['Data']['hist'][i] if 'Data' in All_files.keys() else []
+            Hists_FullList += [All_files['Data']['hist'][i]] if 'Data' in All_files.keys() else []
             Hists_FullList += [total] if total else []
             canv.SetTopMargin(canv.GetTopMargin()*1.5)
             canv.SetRightMargin(0.2)

@@ -34,3 +34,6 @@ varList.append(["ROC_wj_0b","WJ_0b","DNN classifier W+jets",[50,0,1],"LogY",["Mo
 varList.append(["CatTT1Lep","(TTJ_0b >sig_0b) && (TTJ_0b >WJ_0b)","t#bar{t}(1l,2l) + jets Event Category",[2,0.0,2.0],"LogY",["MoreY",5000],'IncludeOverflows'])
 varList.append(["Catwj_0b"," (WJ_0b >sig_0b) && (WJ_0b  > TTJ_0b )","W+jets Event Category",[2,0.0,2.0],"LogY",["MoreY",5000],'IncludeOverflows'])
 varList.append(["CatSig"," (sig_0b >TTJ_0b) && (sig_0b >WJ_0b)","T5q^{4}WW Event Category",[2,0.0,2.0],"LogY",["MoreY",5000],'IncludeOverflows'])
+
+varList.append(["Lp_Sig_0b","Lp:sig_0b","L_{p} : DNN classifier T5q^{4}WW",[30, -0.5, 2.5,30,0,1],'LogZ'])
+

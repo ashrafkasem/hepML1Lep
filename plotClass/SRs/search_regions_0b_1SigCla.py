@@ -22,6 +22,41 @@ cut_strings +='&& (LT > 250)'
 cut_strings +='&& (nBJet == 0)'
 
 
+cut_strings_QCD_CS = ""
+cut_strings_QCD_CS +='(nLep == 1 && Lep_pt > 25)'
+cut_strings_QCD_CS +="&& (Selected == -1 && Lep_miniIso <= 0.4)"
+cut_strings_QCD_CS +='&& (nVeto == 0 )'
+cut_strings_QCD_CS +='&& (!isData || (HLT_EleOR || HLT_MuOR || HLT_MetOR))'
+cut_strings_QCD_CS +='&& (!isData || ( (PD_SingleEle && HLT_EleOR) || (PD_SingleMu && (HLT_MuOR) && !(HLT_EleOR) ) || (PD_MET && (HLT_MetOR) && !(HLT_EleOR) && !(HLT_MuOR) )  ))'
+cut_strings_QCD_CS +='&& (!isData || METfilters == 1)'
+cut_strings_QCD_CS +='&& (!iso_Veto)'
+cut_strings_QCD_CS +='&& (MET/met_caloPt <= 5)'
+cut_strings_QCD_CS +='&& (RA2_muJetFilter == 1)'
+cut_strings_QCD_CS +='&& (Flag_fastSimCorridorJetCleaning)'
+cut_strings_QCD_CS +='&& (nJets30Clean < 5)'
+cut_strings_QCD_CS +='&& (Jet2_pt > 80)'
+cut_strings_QCD_CS +='&& (HT > 500)'
+cut_strings_QCD_CS +='&& (LT > 250)'
+cut_strings_QCD_CS +='&& (nBJet == 0)'
+
+cut_strings_antisel = ""
+cut_strings_antisel +='(nLep == 1 && Lep_pt > 25)'
+cut_strings_antisel +="&& (Selected == -1 && Lep_miniIso <= 0.4)"
+cut_strings_antisel +='&& (nVeto == 0 )'
+cut_strings_antisel +='&& (!isData || (HLT_EleOR || HLT_MuOR || HLT_MetOR))'
+cut_strings_antisel +='&& (!isData || ( (PD_SingleEle && HLT_EleOR) || (PD_SingleMu && (HLT_MuOR) && !(HLT_EleOR) ) || (PD_MET && (HLT_MetOR) && !(HLT_EleOR) && !(HLT_MuOR) )  ))'
+cut_strings_antisel +='&& (!isData || METfilters == 1)'
+cut_strings_antisel +='&& (!iso_Veto)'
+cut_strings_antisel +='&& (MET/met_caloPt <= 5)'
+cut_strings_antisel +='&& (RA2_muJetFilter == 1)'
+cut_strings_antisel +='&& (Flag_fastSimCorridorJetCleaning)'
+cut_strings_antisel +='&& (nJets30Clean >= 3)'
+cut_strings_antisel +='&& (Jet2_pt > 80)'
+cut_strings_antisel +='&& (HT > 500)'
+cut_strings_antisel +='&& (LT > 250)'
+cut_strings_antisel +='&& (nBJet == 0)'
+
+
 SRs_cut_strings = ""
 CRs_1_cut_strings = ""
 CRs_2_cut_strings = ""
@@ -33,10 +68,11 @@ AntidPhiCut = '&& ((LT < 350 && fabs(dPhi) < 1.0) || (350 < LT && LT < 600 && fa
 ntopCut = '&& nTop_Total_Combined >= 1 '
 AntintopCut = '&& nTop_Total_Combined < 1'
 
-SRs_cut_strings   = cut_strings+ "&& (sig_0b >TTJ_0b) && (sig_0b >WJ_0b) && (nJets30Clean > 5)"
-CRs_1_cut_strings   = cut_strings+ "&& (sig_0b >TTJ_0b) && (sig_0b >WJ_0b) && (nJets30Clean <= 5)"
+SRs_cut_strings   = cut_strings+ "&& (sig_0b >TTJ_0b) && (sig_0b >WJ_0b) && (nJets30Clean >= 5)"
+CRs_1_cut_strings = cut_strings_antisel+ "&& (sig_0b >TTJ_0b) && (sig_0b >WJ_0b) && (nJets30Clean >= 5)"
 CRs_2_cut_strings = cut_strings+"&& (TTJ_0b >sig_0b) && (TTJ_0b >WJ_0b)"
 CRs_3_cut_strings = cut_strings+"&& ( WJ_0b > TTJ_0b ) && (WJ_0b >sig_0b)"
+QCD_cut_strings = cut_strings_QCD_CS
 
 import ROOT 
 

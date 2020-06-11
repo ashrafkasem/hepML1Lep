@@ -1,0 +1,2 @@
+&& (sig >TTDi ) && (sig >TTS) && (sig >WJ)
+&& (nJets30Clean >= 7)

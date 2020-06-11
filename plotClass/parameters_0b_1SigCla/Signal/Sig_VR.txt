@@ -1,2 +1,2 @@
 && (sig_0b >TTJ_0b) && (sig_0b >WJ_0b) && (sig_0b < 0.9)
-&& (nJets30Clean > 5)
+&& (nJets30Clean > 4)

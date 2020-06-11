@@ -1,4 +1,4 @@
 && (sig_0b >TTJ_0b ) && (sig_0b >WJ_0b)
 && (nEl == 0 && nMu == 1)
-&& (nJets30Clean >= 6)
+&& (nJets30Clean >= 5)
 

@@ -19,7 +19,7 @@ currentDT = datetime.datetime.now()
 
 import argparse
 
-channels = [['T1tttt_Scan','background']]#,['T1tttt_Scan_','background']]
+channels = [['T1tttt_Scan','background','QCD']]#,['T1tttt_Scan_','background']]
 def hadd1ds(histList):
     '''  A functon to hadd background and set it's style '''
     sumbkg = ROOT.TH1F(histList[0].Clone())
@@ -44,6 +44,8 @@ def getSFs(sffile,which='alpha') :
     if which == 'betaE' :  tokens_column_number = 3
     if which == 'gamma' :  tokens_column_number = 4
     if which == 'gammaE' :  tokens_column_number = 5
+    if which == 'delta' :  tokens_column_number = 6
+    if which == 'deltaE' :  tokens_column_number = 7
     resulttoken=[]
     #masstoken=[]
     for x in linestoken:
@@ -108,6 +110,28 @@ if __name__ == '__main__':
                 #"Wxsec_Up"          :    []  ,
                 #"Wxsec_Down"        :    []
                 }
+        systListQCD = { 
+                "Jec_Up"            :    []  ,
+                "Jec_Down"          :    []  ,
+                "btagSF_b_Up"       :    []  ,
+                "btagSF_b_Down"     :    []  ,
+                "btagSF_l_Up"       :    []  ,
+                "btagSF_l_Down"     :    []  ,
+                "ISR_Up"            :    []  ,
+                "ISR_Down"          :    []  ,
+                "lepSF_Up"          :    []  ,
+                "lepSF_Down"        :    []  ,
+                "PU_Up"             :    []  ,
+                "PU_Down"           :    []  ,
+                #"TTxsec_Up"         :    []  ,
+                #"TTxsec_Down"       :    []  ,
+                #"TTVxsec_Up"        :    []  ,
+                #"TTVxsec_Down"      :    []  ,
+                "Wpol_Up"           :    []  ,
+                "Wpol_Down"         :    []  ,
+                #"Wxsec_Up"          :    []  ,
+                #"Wxsec_Down"        :    []
+                }
         SigsystList = { 
                 "Jec_Up"            :    []  ,
                 "Jec_Down"          :    []  ,
@@ -122,12 +146,14 @@ if __name__ == '__main__':
                 "Wpol_Up"           :    []  ,
                 "Wpol_Down"         :    []  ,
                 }
+
         if int(args.year) != 2016 : 
             systList.pop('ISR_Up', None)
             systList.pop('ISR_Down', None)
             SigsystList.pop('ISR_Up', None)
             SigsystList.pop('ISR_Down', None)
         intersection_syst = set(systList).intersection(set(SigsystList))
+        
         #print(intersection_syst)
 
         lists = []
@@ -145,11 +171,8 @@ if __name__ == '__main__':
         mlsp = float(signal.split('_')[1])
         #bkgToUse_ = bkgToUse(mgo,mlsp)
         print (signal_files)
-        #print('mgo ',mgo,' mlsp ',mlsp,' bkgToUse ', bkgToUse_)
-        #text.write("{:<10}{:<10}{:<10}{:<10}{:<10}{:<10}".format('mgo',mgo,'mlsp',mlsp,'bkgToUse', bkgToUse_)+"\n")
-        #for bkg in background_List : 
-        #if bkg != bkgToUse_ : continue 
         bkg_files_SR = glob.glob(os.path.join(indirB+'/*SR.root'))
+        bkg_files_CR1 = glob.glob(os.path.join(indirB+'/*CR1.root'))
         #print (bkg_files_SR)
         hist = ROOT.TH1F('background','background',10000,0.0,1.0)
         for key in systList : 
@@ -159,6 +182,7 @@ if __name__ == '__main__':
         for bkgf in bkg_files_SR : 
             bkg_name = bkgf.split('/')[-1].split('_')[1]
             if bkg_name == 'Data' : continue 
+            if bkg_name == 'QCD' : continue 
             bf = ROOT.TFile.Open(bkgf, "read")
             #print(bkg_name+'/'+bkg+'/'+bkg_name+bkg+'sig_SR_nominal')
             bhist = bf.Get(bkg_name+'/sig_SR_nom')
@@ -185,6 +209,43 @@ if __name__ == '__main__':
             lists.append(hist)
             #blisthist.append(bhist)
         #print('totalBKG ',hist.Integral())
+        NBins = hist.GetNbinsX()
+        prevSigni = 0.0
+        factor = 1.0 
+        if mgo < 1400 : factor = 1.0
+        bestBin = 0.0
+        # getting the QCD number from antiSel SR which is name as CR1
+        '''dHist = None
+        for bkgf in bkg_files_CR1 : 
+            bkg_name = bkgf.split('/')[-1].split('_')[1]
+            bf = ROOT.TFile.Open(bkgf, "read")
+            if bkg_name == 'Data' : dHist = bf.Get(bkg_name+'/sig_CR1_nom')
+            #print(bkg_name+'/'+bkg+'/'+bkg_name+bkg+'sig_SR_nominal')
+            bhist = bf.Get(bkg_name+'/sig_CR1_nom')
+            for key in systListQCD : 
+                systListQCD[key].append(bf.Get(bkg_name+'/sig_CR1_'+key))
+            #print(bhist.Integral())
+            which = ''
+            scalefactor = 1.0
+            if bkg_name == 'DiLepTT' : which = 'beta'
+            elif bkg_name == 'SemiLepTT' :which = 'alpha'
+            elif bkg_name = 'QCD' : which = 'delta'
+            elif bkg_name != 'Data' : which = 'gamma'
+            scalefactor = float(getSFs(sfs,which=which))
+            #print(bkg,bkgf)
+            #print(bkg)
+            bhist.Scale(scalefactor)
+            for key in systList : 
+                for i,syst in enumerate(systList[key]) : 
+                    scalefactor_syst = float(getSFs(sfs.replace("nom",key),which=which))
+                    if i == 0 : continue
+                    syst.Scale(scalefactor_syst)
+                    systList[key][0].Add(syst)
+                del systList[key][1:]
+            hist.Add(bhist)
+            lists.append(hist)
+            #blisthist.append(bhist)
+        #print('totalBKG ',hist.Integral())'''
         NBins = hist.GetNbinsX()
         prevSigni = 0.0
         factor = 1.0 

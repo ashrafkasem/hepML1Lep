@@ -1,6 +1,6 @@
 
 (nLep == 1 && Lep_pt > 25)
-&& (nEl == 1 && nMu == 0 && Selected == -1)
+&& (nEl == 1 && nMu == 0 && Selected == -1 )
 && (nVeto == 0 )
 && (!isData || (HLT_EleOR || HLT_MuOR || HLT_MetOR))
 && (!isData || ( (PD_SingleEle && HLT_EleOR) || (PD_SingleMu && (HLT_MuOR) && !(HLT_EleOR) ) || (PD_MET && (HLT_MetOR) && !(HLT_EleOR) && !(HLT_MuOR) )  ))

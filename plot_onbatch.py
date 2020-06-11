@@ -41,6 +41,9 @@ def getSFs_(sffile,which='alpha') :
     if which == 'betaE' :  tokens_column_number = 3
     if which == 'gamma' :  tokens_column_number = 4
     if which == 'gammaE' :  tokens_column_number = 5
+    if which == 'delta' :  tokens_column_number = 6
+    if which == 'deltaE' :  tokens_column_number = 7
+    
     resulttoken=[]
     #masstoken=[]
     for x in linestoken:
@@ -73,6 +76,8 @@ def getSFs_0b_(sffile,which='alpha') :
     if which == 'alphaE' :  tokens_column_number = 1
     if which == 'beta' :  tokens_column_number = 2
     if which == 'betaE' :  tokens_column_number = 3
+    if which == 'delta' :  tokens_column_number = 4
+    if which == 'deltaE' :  tokens_column_number = 5
     resulttoken=[]
     #masstoken=[]
     for x in linestoken:
@@ -157,17 +162,19 @@ if __name__ == '__main__':
                     beta = (getSFs_0b(args.abg,mass=mdir.split("/")[-1],which="beta"))
                     cmd+= " --alpha "+alpha+" --beta "+beta
         else :
-            cmd+=" --outdir "+os.path.join(args.outdir,mdir.split("/")[-1]) + " --Smass 1500_1000  1900_100  1600_1100  2200_100 "
+            cmd+=" --outdir "+os.path.join(args.outdir,mdir.split("/")[-1]) + " --Smass 1500_1000  2300_100  1800_1300  2300_800 "
             if not args.scale : 
                 if not "_0b" in args.param :     
                     alpha = (getSFs_(args.abg,which="alpha"))
                     beta = (getSFs_(args.abg,which="beta"))
                     gamma = (getSFs_(args.abg,which="gamma"))
-                    cmd+= " --alpha "+alpha+" --beta "+beta+" --gamma "+gamma
+                    delta = (getSFs_(args.abg,which="delta"))
+                    cmd+= " --alpha "+alpha+" --beta "+beta+" --gamma "+gamma+" --delta "+delta
                 else : 
                     alpha = (getSFs_0b_(args.abg,which="alpha"))
                     beta = (getSFs_0b_(args.abg,which="beta"))
-                    cmd+= " --alpha "+alpha+" --beta "+beta
+                    delta = (getSFs_0b_(args.abg,which="delta"))
+                    cmd+= " --alpha "+alpha+" --beta "+beta+" --delta "+delta
 
         if args.blind and os.path.exists(mdir+"/mplots_blind.py"): 
             incl_cmd = cmd+" --mvarList "+mdir+"/mplots_blind.py "
@@ -207,6 +214,14 @@ if __name__ == '__main__':
                 incA_m_cmd = cmd+" --mvarList "+mdir+"/mplots.py "
                 incA_m_cmd = incA_m_cmd.replace("inclusive.txt","inclusive_mch_antisel.txt")
                 cmd_array.append(incA_m_cmd)
+            if os.path.exists(args.param+"/QCD_antisel.txt") : 
+                QCD_AntiAll_cmd = cmd+" --mvarList "+mdir+"/mplots.py "
+                QCD_AntiAll_cmd = QCD_AntiAll_cmd.replace("inclusive.txt","QCD_antisel.txt")
+                cmd_array.append(QCD_AntiAll_cmd)
+            if os.path.exists(args.param+"/QCD_sel.txt") : 
+                QCD_all_cmd = cmd+" --mvarList "+mdir+"/mplots.py "
+                QCD_all_cmd = QCD_all_cmd.replace("inclusive.txt","QCD_sel.txt")
+                cmd_array.append(QCD_all_cmd)
             cmd_array.append(incl_cmd)
         
         for mcut in myFiles : 
@@ -225,10 +240,7 @@ if __name__ == '__main__':
                 othercmd = othercmd.replace("inclusive.txt","QCD_ech_antisel.txt")
                 othercmd = othercmd+" --mvarList "+mdir+"/mplots.py "
             elif ("antisel" in str(mcut)) : 
-                othercmd = othercmd.replace("inclusive.txt","inclusive_ech_antisel.txt")
-                othercmd = othercmd+" --mvarList "+mdir+"/mplots.py "
-            elif ("antisel" in str(mcut)) : 
-                othercmd = othercmd.replace("inclusive.txt","inclusive_mch_antisel.txt")
+                othercmd = othercmd.replace("inclusive.txt","inclusive_antisel.txt")
                 othercmd = othercmd+" --mvarList "+mdir+"/mplots.py "
             elif "inclusive_njseq6" in str(mcut) and os.path.exists(mdir+"/mplots.py") :
                 othercmd = othercmd+" --mvarList "+mdir+"/mplots.py "
@@ -237,7 +249,7 @@ if __name__ == '__main__':
             elif not "inclusive" in str(mcut) and os.path.exists(mdir+"/mplots.py") : 
                 othercmd = othercmd+" --mvarList "+mdir+"/mplots.py "
             othercmd+= " --mcuts "+mcut
-            if ('Sig.txt' in mcut or 'Sig_ech.txt' in mcut or 'Sig_mch.txt' in mcut or "Sig_lastbin" in mcut or "Sig_ge" in mcut or 'Sig_nj7.txt' in mcut or 'Sig_SR.txt' in mcut or 'Sig_bin' in mcut ) and (not "Anti" in mcut or "QCD" in mcut) : othercmd +=' --blind '
+            if ('Sig.txt' in mcut or 'Sig_ech.txt' in mcut or 'Sig_mch.txt' in mcut or "Sig_lastbin" in mcut or "Sig_ge" in mcut or 'Sig_nj7.txt' in mcut or 'Sig_nj6.txt' in mcut or 'Sig_SR.txt' in mcut or 'Sig_bin' in mcut ) and (not "Anti" in mcut or "QCD" in mcut) : othercmd +=' --blind '
             cmd_array.append(othercmd)
             
     cmd_array = [x.replace("//","/") for x in cmd_array]

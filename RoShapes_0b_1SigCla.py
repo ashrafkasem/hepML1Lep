@@ -29,6 +29,8 @@ SRs_cut_strings =  sr.SRs_cut_strings
 CRs1_cut_strings = sr.CRs_1_cut_strings
 CRs2_cut_strings = sr.CRs_2_cut_strings
 CRs3_cut_strings = sr.CRs_3_cut_strings
+QCD_cut_strings = sr.cut_strings_QCD_CS
+
 
 def make1D(var,style,name,ranges):
     '''  A functon to make a 1D histogram and set it's style '''
@@ -158,6 +160,7 @@ if __name__ == '__main__':
     elif cutdict == 'CR1' : cutdict_ = CRs1_cut_strings
     elif cutdict == 'CR2' : cutdict_ = CRs2_cut_strings
     elif cutdict == 'CR3' : cutdict_ = CRs3_cut_strings
+    elif cutdict == 'QCDCR' : cutdict_ = QCD_cut_strings
     
     if int(args.year) == 2018 :
         cutdict_+="&& (!isData || (Run < 319077) || ( nHEMJetVeto == 0 && nHEMEleVeto == 0))"
@@ -260,7 +263,7 @@ if __name__ == '__main__':
     elif batch :
         cmd_array = []
         print('batch mode activated ...')
-        regions = ['SR','CR1','CR2','CR3']
+        regions = ['CR1','QCDCR']#['SR','CR1','CR2','CR3','QCDCR']
         #sub = htcondor.Submit("")
         ##Condor configuration
         

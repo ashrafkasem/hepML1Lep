@@ -17,7 +17,7 @@ varList.append(["iso_MT2", "iso_MT2", "MT_{2} [GeV]", [20, 0, 1000], "LogY",["Mo
 varList.append(["Lep_miniIso", "Lep_miniIso", "MiniISO(l) [GeV]", [50, 0, 0.5], "LogY",["MoreY",2000],"IncludeOverflows"])
 
 varList.append(["Lp_log", "Lp", "L_{p}", [30, -0.5, 2.5], "LogY",["MoreY",2000],"IncludeOverflows"])
-varList.append(["Lp", "Lp", "L_{p}", [30, -0.5, 2.5],["MoreY",1.6],"IncludeOverflows"])
+varList.append(["Lp", "Lp", "L_{p}", [30, -0.5, 2.5],["MoreY",1.8],"IncludeOverflows"])
 
 varList.append(["HT_AN", "HT", "H_{T} [GeV]", [42, 0, 3000], "LogY",["MoreY",2000],"IncludeOverflows",['varbin', [500,750,1000,1250,2500],True]])
 varList.append(["LT_AN", "LT", "L_{T} [GeV]", [35, 0, 1200] , "LogY",["MoreY",2000],"IncludeOverflows",['varbin', [250,350,450,600,1000],True]])
