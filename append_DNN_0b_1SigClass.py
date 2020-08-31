@@ -108,8 +108,6 @@ if __name__ == '__main__':
     
     wdir = os.getcwd()
     
-
-
     if not args.batchMode and args.infile: 
         import ROOT
         import time

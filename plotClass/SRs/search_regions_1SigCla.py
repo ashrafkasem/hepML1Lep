@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from plotClass.plotting.plotGroups import All_files
 # this is for limit setting
-categories = ['sig','TTS','TTDi','WJ']
+categories = ['sig','TTS','TTDi','WJ','Lp']
 
 cut_strings = ""
 cut_strings +='(nLep == 1 && Lep_pt > 25)'
@@ -39,7 +39,22 @@ cut_strings_QCD_CS +="&& (HT > 500)"
 cut_strings_QCD_CS +="&& (LT > 250)"
 cut_strings_QCD_CS +="&& (nBJet == 0)"
 
-
+cut_strings_QCDSel = ""
+cut_strings_QCDSel +='(nLep == 1 && Lep_pt > 25)'
+cut_strings_QCDSel +="&& (Selected == 1)"
+cut_strings_QCDSel +='&& (nVeto == 0 )'
+cut_strings_QCDSel +='&& (!isData || (HLT_EleOR || HLT_MuOR || HLT_MetOR))'
+cut_strings_QCDSel +='&& (!isData || ( (PD_SingleEle && HLT_EleOR) || (PD_SingleMu && (HLT_MuOR) && !(HLT_EleOR) ) || (PD_MET && (HLT_MetOR) && !(HLT_EleOR) && !(HLT_MuOR) )  ))'
+cut_strings_QCDSel +='&& (!isData || METfilters == 1)'
+cut_strings_QCDSel +='&& (!iso_Veto)'
+cut_strings_QCDSel +='&& (MET/met_caloPt <= 5)'
+cut_strings_QCDSel +='&& (RA2_muJetFilter == 1)'
+cut_strings_QCDSel +='&& (Flag_fastSimCorridorJetCleaning)'
+cut_strings_QCDSel +='&& (nJets30Clean < 5)'
+cut_strings_QCDSel +='&& (Jet2_pt > 80)'
+cut_strings_QCDSel +='&& (HT > 500)'
+cut_strings_QCDSel +='&& (LT > 250)'
+cut_strings_QCDSel +='&& (nBJet == 0)'
 
 cut_strings_antisel = ""
 cut_strings_antisel +='(nLep == 1 && Lep_pt > 25)'
@@ -58,11 +73,13 @@ cut_strings_antisel +='&& (HT > 500)'
 cut_strings_antisel +='&& (LT > 250)'
 cut_strings_antisel +='&& (nBJet >= 1)'
 
-SRs_cut_strings = ""
-CRs_1_cut_strings = ""
-CRs_2_cut_strings = ""
-CRs_3_cut_strings = ""
-CRs_4_cut_strings = ""
+SRs_cut_strings     = ""
+CRs_1_cut_strings   = ""
+CRs_2_cut_strings   = ""
+CRs_3_cut_strings   = ""
+CRs_4_cut_strings   = ""
+QCD_cut_strings     = ""
+AntiSel_SR          = "" 
 
 dPhiCut = '&& ((LT < 350 && fabs(dPhi) > 1.0) || (350 < LT && LT < 600 && fabs(dPhi) > 0.75) || (600 < LT && fabs(dPhi) > 0.5))'
 AntidPhiCut = '&& ((LT < 350 && fabs(dPhi) < 1.0) || (350 < LT && LT < 600 && fabs(dPhi) < 0.75) || (600 < LT && fabs(dPhi) < 0.5))'
@@ -70,13 +87,14 @@ ntopCut = '&& nTop_Total_Combined >= 1 '
 AntintopCut = '&& nTop_Total_Combined < 1'
 
 SRs_cut_strings   = cut_strings+ "&& (sig >TTDi ) && (sig >TTS) && (sig >WJ) && (nJets30Clean >= 6)"
-CRs_1_cut_strings = cut_strings_antisel+ "&& (sig >TTDi ) && (sig >TTS) && (sig >WJ) && (nJets30Clean >= 6)"
+CRs_1_cut_strings = cut_strings_QCDSel#+ "&& (sig >TTDi ) && (sig >TTS) && (sig >WJ) && (nJets30Clean >= 6)"
 #SRs_HDM_cut_strings   = cut_strings+ "&& (signal_HDM >TTDi ) && (signal_HDM >TTS) && (signal_HDM >WJ)&& (signal_HDM >sig)"
 CRs_2_cut_strings = cut_strings+"&& (TTS >TTDi ) && (TTS >sig) && (TTS >WJ)"
 CRs_3_cut_strings = cut_strings+"&& (TTDi > TTS) && (TTDi >sig) && (TTDi >WJ)"
 CRs_4_cut_strings = cut_strings+"&& ( WJ > TTS ) && (WJ >sig) && (WJ >TTDi)"
 #CRs_4_cut_strings = cut_strings+"&&(("+m[3]+">"+m[0]+" ) && ("+m[3]+">"+m[1]+") && ("+m[3]+" >"+m[2]+"))"
 QCD_cut_strings = cut_strings_QCD_CS
+AntiSel_SR   = cut_strings_antisel+ "&& (sig >TTDi ) && (sig >TTS) && (sig >WJ) && (nJets30Clean >= 6)"
 
 import ROOT 
 

@@ -90,7 +90,6 @@ def getSFs_0b_(sffile,which='alpha') :
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Runs a NAF batch system for 1l plotter', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--indir', help='input root files', metavar='indir')
-    parser.add_argument('--exec', help="excutable", default='./batch/plotter_exec.sh', metavar='exec')
     parser.add_argument('--lumi','-L' ,help="", default="35.9", metavar='lumi')
     parser.add_argument('--outdir' ,help="outputdir", default=None, metavar='outdir')
     parser.add_argument('--scale' ,help="if YES scale MC to Data, if not use alpha/beta/gamma", default=False, action='store_true')
@@ -101,22 +100,22 @@ if __name__ == '__main__':
     parser.add_argument('--blindall' ,help="to blind the all distributions",default=False,action='store_true')
     parser.add_argument("--showSF", default=False, help="show the SF or not",action='store_true')    
     parser.add_argument("--showCount", default=False, help="show the counts in legend",action='store_true')  
+    parser.add_argument("--HEM", default=False, help="apply the HEM Fix, only for 2018",action='store_true')    
 
     args = parser.parse_args()
-
+    HEMtext = ""
     if args.lumi == "35.9" : 
         year = "2016"
     elif args.lumi == "41.9" : 
         year = "2017"
     elif args.lumi == "59.74" : 
         year = "2018"
+        if args.HEM : HEMtext = " --HEM "
     elif args.lumi == "137.54" : 
         year = "20161718"
     else : print("lumi must be in [35.9,41.9,59.74]") ; sys.exit() 
     
-    
-        
-    cmd = " --indir "+args.indir+" --lumi "+args.lumi+ " --YmaX 0.0  --YmiN 0.1 --rmax 1.95 --rmin 0.05 --doRatio --year "+year
+    cmd = " --indir "+args.indir+" --lumi "+args.lumi+ " --YmaX 0.0  --YmiN 0.1 --rmax 1.95 --rmin 0.05 --doRatio --year "+year + HEMtext
 
     if args.showSF : 
         cmd += " --showSF "
@@ -226,6 +225,7 @@ if __name__ == '__main__':
         
         for mcut in myFiles : 
             othercmd = cmd
+            #print(mcut)
             if ("_postHEM" in str(mcut) or "_preHEM" in str(mcut)) and not year == "2018" : continue
             if ("QCD_mchsel" in str(mcut)) : 
                 othercmd = othercmd.replace("inclusive.txt","QCD_mch_sel.txt")
@@ -239,6 +239,18 @@ if __name__ == '__main__':
             elif ("QCD_echantisel" in str(mcut)) : 
                 othercmd = othercmd.replace("inclusive.txt","QCD_ech_antisel.txt")
                 othercmd = othercmd+" --mvarList "+mdir+"/mplots.py "
+            elif ("Sig_SR_ech_antisel" in str(mcut)) : 
+                othercmd = othercmd.replace("inclusive.txt","inclusive_ech_antisel.txt")
+                othercmd = othercmd+" --mvarList "+mdir+"/mplots.py "
+            elif ("Sig_VR_ech_antisel" in str(mcut)) : 
+                othercmd = othercmd.replace("inclusive.txt","inclusive_ech_antisel.txt")
+                othercmd = othercmd+" --mvarList "+mdir+"/mplots.py "
+            elif ("Sig_SR_mch_antisel" in str(mcut)) : 
+                othercmd = othercmd.replace("inclusive.txt","inclusive_mch_antisel.txt")
+                othercmd = othercmd+" --mvarList "+mdir+"/mplots.py "
+            elif ("Sig_VR_mch_antisel" in str(mcut)) : 
+                othercmd = othercmd.replace("inclusive.txt","inclusive_mch_antisel.txt")
+                othercmd = othercmd+" --mvarList "+mdir+"/mplots.py "
             elif ("antisel" in str(mcut)) : 
                 othercmd = othercmd.replace("inclusive.txt","inclusive_antisel.txt")
                 othercmd = othercmd+" --mvarList "+mdir+"/mplots.py "
@@ -248,14 +260,15 @@ if __name__ == '__main__':
                 othercmd = othercmd+" --mvarList "+mdir+"/mplots_blind.py "
             elif not "inclusive" in str(mcut) and os.path.exists(mdir+"/mplots.py") : 
                 othercmd = othercmd+" --mvarList "+mdir+"/mplots.py "
+
+
             othercmd+= " --mcuts "+mcut
-            if ('Sig.txt' in mcut or 'Sig_ech.txt' in mcut or 'Sig_mch.txt' in mcut or "Sig_lastbin" in mcut or "Sig_ge" in mcut or 'Sig_nj7.txt' in mcut or 'Sig_nj6.txt' in mcut or 'Sig_SR.txt' in mcut or 'Sig_bin' in mcut ) and (not "Anti" in mcut or "QCD" in mcut) : othercmd +=' --blind '
+            if ('Sig.txt' in mcut or 'Sig_ech.txt' in mcut or 'Sig_mch.txt' in mcut or "Sig_lastbin" in mcut or "Sig_ge" in mcut or 'Sig_nj7.txt' in mcut or 'Sig_nj6.txt' in mcut or 'Sig_SR.txt' in mcut or 'Sig_SR_ech.txt' in mcut or 'Sig_SR_mch.txt' in mcut or 'Sig_bin' in mcut ) and (not "Anti" in mcut or "QCD" in mcut) : othercmd +=' --blind '
             cmd_array.append(othercmd)
             
     cmd_array = [x.replace("//","/") for x in cmd_array]
     
     logdir = os.path.join(args.outdir,'Logs')
-    excu = args.exec
     wdir = os.getcwd()
     if not os.path.exists(logdir):
         os.makedirs(logdir) 
@@ -314,4 +327,4 @@ if __name__ == '__main__':
     subFile.write("\n")
     subFile.write("queue DIR matching dirs "+JDir+"/job_*/")
     subFile.close()
-    os.system("condor_submit "+subFilename)
+    os.system("condor_submit -name s13 "+subFilename)

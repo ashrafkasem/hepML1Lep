@@ -45,8 +45,8 @@ class rootplot(object) :
         #print(name)
         CUTtext = open(self.outdir+"/cuts.txt", "w+")
         CUTtext.write(cutstring+extraCuts+'\n')
-
         cutstring = TCut(cutstring+extraCuts)
+        #print(cutstring)
         cut = cutstring.GetTitle()
         # when doing the cutflow, make a temp root file to avoid using a lot of memory
         if name : 

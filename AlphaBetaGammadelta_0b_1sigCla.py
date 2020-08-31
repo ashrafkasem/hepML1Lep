@@ -112,12 +112,12 @@ if __name__ == '__main__':
                 if not '_'+syst in hname: continue
             hist = tdir.Get(hname)
             if not 'sig_0b' in hname : continue
-            for obkg in others_bkg : 
-                if (obkg in bkg and '_SR' in hname ): otherSR.Add(hist)
-                if (obkg in bkg and '_CR1' in hname ): otherCR1.Add(hist)
-                if (obkg in bkg and '_CR2' in hname ): otherCR2.Add(hist)
-                if (obkg in bkg and '_CR3' in hname ): otherCR3.Add(hist)
-                if (obkg in bkg and '_QCDCR' in hname ): otherQCDCR.Add(hist) 
+            if bkg in others_bkg : 
+                if ('_SR' in hname ): otherSR.Add(hist)
+                if ('_CR1' in hname ): otherCR1.Add(hist)
+                if ('_CR2' in hname ): otherCR2.Add(hist)
+                if ('_CR3' in hname ): otherCR3.Add(hist)
+                if ('_QCDCR' in hname ): otherQCDCR.Add(hist) 
             
             if ('_SR' in hname and not 'Data' in bkg): 
                 txtSR.write("{:<20}{:<20}{:<20}".format(hist.GetTitle(),round(hist.IntegralAndError(0, hist.GetNbinsX()+1, err), 2), round(err, 2))+"\n")
@@ -156,19 +156,19 @@ if __name__ == '__main__':
 
     txtQCDCR.write((60 *('='))+'\n')
     txtQCDCR.write("{:<20}{:<20}{:<20}".format(otherQCDCR.GetTitle(),round(otherQCDCR.IntegralAndError(0, otherQCDCR.GetNbinsX()+1, err_24), 2), round(err_24, 2))+"\n")
-    WJ_QCDCR = round(otherQCDCR.IntegralAndError(0, otherQCDCR.GetNbinsX()+1, err_24),2)
+    TTJ_QCDCR = round(otherQCDCR.IntegralAndError(0, otherQCDCR.GetNbinsX()+1, err_24),2)
     
     del otherSR,otherCR1,otherCR2,otherCR3
 
 
-    df_dict['Category'] = ["T1tttt Cat.", "TTJets Cat.","WJets Cat.","QCDCS"]
+    df_dict['Category'] = ["T5qqqqWW Cat.", "TTJets Cat.","WJets Cat.","QCDCS"]
     df_dict['TTJets'] = [str(TTJ_1)+" +/- "+str(round(err_6,2)),str(TTJ_2)+" +/- "+str(round(err_8,2)),str(TTJ_3)+" +/- "+str(round(err_9,2)),str(TTJ_QCDCR)+" +/- "+str(round(err_24,2))]
     df_dict['Others'] = [str(WJ_1)+" +/- "+str(round(err_0,2)),str(WJ_2)+" +/- "+str(round(err_1,2)),str(WJ_3)+" +/- "+str(round(err_4,2)),str(WJ_QCDCR)+" +/- "+str(round(err_19,2))]
     df_dict['QCD'] = [str(QCD_1)+" +/- "+str(round(err_15,2)),str(QCD_2)+" +/- "+str(round(err_16,2)),str(QCD_3)+" +/- "+str(round(err_17,2)),str(QCD_QCDCR)+" +/- "+str(round(err_21,2))]
     df_dict['Data'] =   ["-- +/- --", str(Data_2)+" +/- "+str(round(err_3,2)), str(Data_3)+" +/- "+str(round(err_5,2)), str(Data_QCDCR)+" +/- "+str(round(err_22,2))]
 
 
-    dftex_dict['Category &'] = ["T1tttt Cat. &", "TTJets Cat.&","WJets Cat.&","QCDCS &"]
+    dftex_dict['Category &'] = ["T5qqqqWW Cat. &", "TTJets Cat.&","WJets Cat.&","QCDCS &"]
     dftex_dict['TTJets &'] = [str(TTJ_1)+" $\pm$ "+str(round(err_6,2))+" &",str(TTJ_2)+" $\pm$ "+str(round(err_8,2))+" &",str(TTJ_3)+" $\pm$ "+str(round(err_9,2))+" &",str(TTJ_QCDCR)+" $\pm$ "+str(round(err_24,2))+" &"]
     dftex_dict['Others &'] = [str(WJ_1)+" $\pm$ "+str(round(err_0,2))+" &",str(WJ_2)+" $\pm$ "+str(round(err_1,2))+" &",str(WJ_3)+" $\pm$ "+str(round(err_4,2))+" &",str(WJ_QCDCR)+" $\pm$ "+str(round(err_19,2))+" &"]
     dftex_dict['QCD &'] = [str(QCD_1)+" $\pm$ "+str(round(err_15,2))+" &",str(QCD_2)+" $\pm$ "+str(round(err_16,2))+" &",str(QCD_3)+" $\pm$ "+str(round(err_17,2))+" &",str(QCD_QCDCR)+" $\pm$ "+str(round(err_21,2))+" &"]

@@ -1,0 +1,3 @@
+&& (sig >TTDi ) && (sig >TTS) && (sig >WJ) && (sig >= 0.9)
+&& (nEl == 1 && nMu == 0)
+&& (nJets30Clean >= 7)

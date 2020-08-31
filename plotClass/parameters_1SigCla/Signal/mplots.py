@@ -1,6 +1,10 @@
 varList.append(["TTDi","TTDi","DNN classifier t#bar{t} ll",[20,0,1],"LogY",["MoreY",5000],'IncludeOverflows'])
 varList.append(["sig","sig","DNN classifier T1t^{4}",[20,0,1],"LogY",["MoreY",5000],'IncludeOverflows'])
 varList.append(["sig_SR_log","sig","DNN classifier T1t^{4}",[3,0,1],"LogY",["MoreY",5000],['varbin',[0.9,0.9196,0.9393,0.9588,0.9785,0.998,1],False]])
+varList.append(["sig_VR","sig","DNN classifier T1t^{4}",[3,0,1],"LogY",["MoreY",5000],['varbin',[0.8,0.82,0.84,0.86,0.88,0.9],False]])
+varList.append(["sig_VR_2","sig","DNN classifier T1t^{4}",[3,0,1],"LogY",["MoreY",5000],['varbin',[0.7,0.72,0.74,0.76,0.78,0.8],False]])
+varList.append(["sig_VR_3","sig","DNN classifier T1t^{4}",[3,0,1],"LogY",["MoreY",5000],['varbin',[0.7,0.74,0.78,0.82,0.86,0.9],False]])
+
 varList.append(["sig_SR","sig","DNN classifier T1t^{4}",[3,0,1],["MoreY",3],['varbin',[0.9,0.9196,0.9393,0.9588,0.9785,0.998,1],False]])
 varList.append(["WJ","WJ","DNN classifier W+jets",[20,0,1],"LogY",["MoreY",5000],'IncludeOverflows'])
 varList.append(["TTS","TTS","DNN classifier t#bar{t} l",[20,0,1],"LogY",["MoreY",5000],'IncludeOverflows'])

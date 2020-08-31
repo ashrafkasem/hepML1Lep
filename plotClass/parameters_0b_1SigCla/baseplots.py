@@ -23,4 +23,9 @@ varList.append(["HT_AN", "HT", "H_{T} [GeV]", [42, 0, 3000], "LogY",["MoreY",200
 varList.append(["LT_AN", "LT", "L_{T} [GeV]", [35, 0, 1200] , "LogY",["MoreY",2000],"IncludeOverflows",['varbin', [250,350,450,600,1000],True]])
 varList.append(["dPhi_AN", "fabs(dPhi)", "#Delta #varphi (lep,W)" ,[30, 0, 3.142],"LogY",["MoreY",2000],"IncludeOverflows",['varbin', [0,0.1,0.2,0.3,0.4,0.5,0.75,1,1.5,2.0,3.142],True]])
 
-varList.append(["Jet_eta_phi","Jet_eta:Jet_phi","2. Leading jet #eta : 2. Leading jet #phi",[50,-5,5,50,-3.142,3.142],'LogZ'])
+varList.append(["Jet_eta_phi","Jet_phi_arr:Jet_eta_arr","jet #phi : jet #eta",[100,-3.5,3.5,100,-3.142,3.142],'LogZ',["BOX",[-1.77,-0.67,-3.2,-1.2],True]])
+varList.append(["Lep_eta_phi","Lep_phi:Lep_eta","Lep. #phi : Lep. #eta",[100,-3.5,3.5,100,-3.142,3.142],'LogZ',["BOX",[-1.57,-0.87,-3.0,-1.4],True]])
+varList.append(["Jet_eta", "Jet_eta_arr", "#eta_{jets}" ,[100,-3.5,3.5],"LogY",["MoreY",2000],"IncludeOverflows"])
+varList.append(["Lep_eta", "Lep_eta", "#eta_{Lepton}" ,[100,-3.5,3.5],"LogY",["MoreY",2000],"IncludeOverflows"])
+varList.append(["Jet_phi", "Jet_phi_arr", "#phi_{jets}" ,[100,-3.142,3.142],"LogY",["MoreY",2000],"IncludeOverflows"])
+varList.append(["Lep_phi", "Lep_phi", "#phi_{Lepton}" ,[100,-3.142,3.142],"LogY",["MoreY",2000],"IncludeOverflows"])

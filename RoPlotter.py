@@ -70,11 +70,11 @@ def make2D(var,style,name):
         style["line"].Copy(hist)
     if style["marker"]:
         style["marker"].Copy(hist)
-    hist.GetYaxis().SetTitle(var[2].split(":")[1])
+    hist.GetYaxis().SetTitle(var[2].split(":")[0])
     hist.GetYaxis().SetTitleSize(0.07)
     hist.GetYaxis().SetTitleFont(42)
     hist.GetYaxis().SetTitleOffset(1.2)
-    hist.GetXaxis().SetTitle(var[2].split(":")[0])
+    hist.GetXaxis().SetTitle(var[2].split(":")[1])
     hist.GetXaxis().SetLabelFont(42)
     hist.GetYaxis().SetLabelSize(0.05)
     hist.GetXaxis().SetTitleOffset(1.1)
@@ -385,6 +385,7 @@ if __name__ == '__main__':
     parser.add_argument('--Smass', nargs='+',default=[],help="the mas of the signal hypothesis")
     parser.add_argument('--FromData','--FD', default=None, help="if you need to take one background from data, the other backgrounds will be subtracted from data and the differece will be the specified one",metavar='FromData')
     parser.add_argument('--remove',nargs='+',default=[],help="if you would remove certain background for example QCD WJ and so on")
+    parser.add_argument("--HEM", default=False, help="apply the HEM Fix, only for 2018",action='store_true')    
 
     args = parser.parse_args()
 
@@ -405,7 +406,8 @@ if __name__ == '__main__':
 
     scale_bkgd_toData = args.scale_bkgd_toData
     do_alphabetagamma = args.do_alphabetagamma
-    doRatio = args.doRatio
+    doRatio_ = args.doRatio
+    doRatio = doRatio_
     YmaX = float(args.YmaX) ; YmiN = float(args.YmiN)
     rmax = float(args.rmax) ; rmin = float(args.rmin)
 
@@ -451,14 +453,15 @@ if __name__ == '__main__':
         if cutline.startswith("#") : continue
         cutline = str(cutline).strip()
         cut_strings+= cutline 
-    
-    if int(args.year) == 2018 and "postHEM" in str(args.mcuts): cut_strings+="&& ( nHEMJetVeto == 0 && nHEMEleVeto == 0)" ; lumi = "39.6" 
-    elif int(args.year) == 2018 and "preHEM" in str(args.mcuts) : cut_strings = cut_strings ; lumi = "20.1"
-    elif int(args.year) == 2018 :#and args.mcuts == None :
-        cut_strings+="&& (!isData || (Run < 319077) || (nHEMJetVeto == 0 && nHEMEleVeto == 0))"
-        for key in All_files: 
-            if "Data" in key or "Signal_" in key : continue 
-            All_files[key]['scale']  = All_files[key]['scale'].replace('*lepSF',"*lepSF*HEM_MC_SF")
+
+    if args.HEM : 
+        if int(args.year) == 2018 and "postHEM" in str(args.mcuts): cut_strings+="&& ( nHEMJetVeto == 0 && nHEMEleVeto == 0)" ; lumi = "39.6" 
+        elif int(args.year) == 2018 and "preHEM" in str(args.mcuts) : cut_strings = cut_strings ; lumi = "20.1"
+        elif int(args.year) == 2018 :#and args.mcuts == None :
+            cut_strings+="&& (!isData || ((Run >= 319077) && (nHEMJetVeto == 0 && nHEMEleVeto == 0)) || (Run < 319077) )"
+            for key in All_files: 
+                if "Data" in key or "Signal_" in key : continue 
+                All_files[key]['scale']  = All_files[key]['scale'].replace('*lepSF',"*lepSF*HEM_MC_SF")
     
     adcuts = ''
     if args.mcuts != None : 
@@ -473,6 +476,7 @@ if __name__ == '__main__':
     if args.blind : 
         del All_files['Data']
         doRatio = False
+        doRatio_ = False
     if len(args.remove) != 0 : 
         for rm_item in args.remove :
              del All_files[rm_item]
@@ -481,6 +485,13 @@ if __name__ == '__main__':
     exec(open(args.varList).read())
     if args.mvarList != None : 
         exec(open(args.mvarList).read())
+    
+    if int(args.year) == 2018 : 
+        varList.append(["HEME_eta_phi","phiHEMEleVeto:etaHEMEleVeto","HEM ele. #phi : HEM ele. #eta",[50,-3.5,3.5,50,-3.142,3.142],'LogZ',["BOX",[-1.57,-0.87,-3.0,-1.4],True]])
+        varList.append(["HEMJ_eta_phi","phiHEMJetVeto:etaHEMJetVeto","HEM jet #phi : HEM jet #eta",[50,-3.5,3.5,50,-3.142,3.142],'LogZ',["BOX",[-1.77,-0.67,-3.2,-1.2],True]])
+        varList.append(["nHEMJetVeto", "nHEMJetVeto", "HEM jet multiplicity", [2, 0, 2] , "LogY",["MoreY",2000],"IncludeOverflows"])
+        varList.append(["nHEMEleVeto", "nHEMEleVeto", "HEM ele. multiplicity", [2, 0, 2] , "LogY",["MoreY",2000],"IncludeOverflows"])
+        varList.append(["AllHEMVeto", "(nHEMEleVeto == 1 || nHEMJetVeto ==1 ) &&(!isData || (Run >= 319077)) ", "HEM multiplicity", [2, 0, 2] , "LogY",["MoreY",2000],"IncludeOverflows"])
  
     alpha,beta,gamma,delta =  float(args.alpha),float(args.beta),float(args.gamma),float(args.delta)#0.83 ,1.01 , 0.74
 
@@ -494,6 +505,7 @@ if __name__ == '__main__':
     CMS_lumi.lumi_13TeV = "%s fb^{-1}" % lumi
     CMS_lumi.extraText  = 'Preliminary'
     CMS_lumi.lumi_sqrtS = '13 TeV'
+    
     CMS_lumi.lumiTextSize     = 0.6 if doRatio else 0.52
     CMS_lumi.cmsTextSize      = 0.9 if doRatio else 0.8
     CMS_lumi.extraOverCmsTextSize  = 0.76 if doRatio else 0.62 
@@ -501,7 +513,9 @@ if __name__ == '__main__':
     if int(args.year) != 2016 : 
         All_files["DiLepTT"]['scale']  = All_files["DiLepTT"]['scale'].replace('*nISRweight','').replace("*nISRttweight","")
         All_files["SemiLepTT"]['scale']  = All_files["SemiLepTT"]['scale'].replace('*nISRweight','').replace("*nISRttweight","")
-                    
+    # will make a temp root file in order not to occupy the memory and will remove it at the end
+    tempofile = os.path.join(outdire,"plots_temp.root")
+    temproot = ROOT.TFile(tempofile,"recreate")               
     # get the plotter class instant 
     instPlot = rootplot(indir,outdire,All_files=All_files)
     if int(args.jobs) == 0 : 
@@ -541,9 +555,13 @@ if __name__ == '__main__':
     fcmd.close()
     TH2DHist = False 
     for i,var in enumerate(varList) :
+        doRatio = doRatio_
         TH2DHist = False
         if ":" in var[1] : 
             TH2DHist = True
+        if TH2DHist : doRatio = False
+        if "ROC" in var[0] : 
+            doRatio = False
         outtext = open(textdire+"/"+var[0]+".txt", "w+")
         print (var[0])
         # make Tdir for each Varable to plot
@@ -571,6 +589,7 @@ if __name__ == '__main__':
             if any('AddCut' in e for e in var) : 
                 index0,_ = findItem(var , 'AddCut')
                 addicut = var[index0][1] 
+
             All_files[key]['chain'].Draw(var[1] +' >> '+key+var[0], All_files[key]['scale']+'*'+lum+'*(Sum$('+adcuts+addicut+'))',"goff")
             #print (hist)
             ROOT.gROOT.ForceStyle()
@@ -632,7 +651,7 @@ if __name__ == '__main__':
         if sf == 0.0 : continue
         # scale the total backgrounds to data
         total.Scale(sf if apply == True else 1.0 )
-        total.SetName("totalBKG_scaled")
+        total.SetName("totalBKG_scaled") if not TH2DHist else total.SetName("totalBKG_scaled_"+var[0])
         # if you want to get one of the backgrounds from data
         histFromData = None
         if args.FromData != None and 'Data' in All_files.keys() and not TH2DHist:
@@ -813,9 +832,6 @@ if __name__ == '__main__':
                 ROOT.gPad.SetLogy()
 
         elif "ROC" in var[0] : 
-            #lineColours = [1, 2, 4, 7, 8]
-            #lineStyles = [3, 2, 1, 4, 5]
-            
             for i,roc in enumerate(rocs) : 
                 roc.SetLineWidth(2)
                 roc.SetLineColor(style[i][0])
@@ -826,20 +842,28 @@ if __name__ == '__main__':
                 # roc.GetXaxis().SetRangeUser(0.8, 1.)
                 roc.Draw('AL' if i == 0 else 'L')
                 roc.Write()
-            CMS_lumi.CMS_lumi(ROOT.gPad, 4, 0, 0.01)
+
+            CMS_lumi.CMS_lumi(ROOT.gPad, 4, 0, 0.09)
+
             doLegend(rocs, None, None, textSize=0.020, columns=2,showSF=False,uncertHist= None,showCount=False)
         elif TH2DHist:
+            stops = array('d', [ 0.0000, 0.1250, 0.2500, 0.3750, 0.5000, 0.6250, 0.7500, 0.8750, 1.0000 ])
+            red = array('d', [  61./255.,  99./255., 136./255., 181./255., 213./255., 225./255., 198./255., 136./255., 24./255. ])
+            green = array('d', [ 149./255., 140./255.,  96./255.,  83./255., 132./255., 178./255., 190./255., 135./255., 22./255. ])
+            blue = array('d', [ 214./255., 203./255., 168./255., 135./255., 110./255., 100./255., 111./255., 113./255., 22./255. ])
+            ROOT.TColor.CreateGradientColorTable(9, stops, red, green, blue, 255)
+            #ROOT.gStyle.SetPalette(1)
+            ROOT.gStyle.SetNumberContours(104);
             Hists_FullList = []
             Hists_FullList += SignalHists if SignalHists else []
             Hists_FullList += stackableHists if stackableHists else  []
             Hists_FullList += [All_files['Data']['hist'][i]] if 'Data' in All_files.keys() else []
             Hists_FullList += [total] if total else []
-            canv.SetTopMargin(canv.GetTopMargin()*1.5)
-            canv.SetRightMargin(0.2)
-            canv.SetLeftMargin(canv.GetLeftMargin()*0.5)
+            canv.SetTopMargin(canv.GetTopMargin()*1.4)
+            canv.SetRightMargin(0.13)
+            canv.SetLeftMargin(canv.GetLeftMargin()*0.6)
             #ROOT.gPad.Modified()
             ROOT.gPad.Update()
-            CMS_lumi.CMS_lumi(ROOT.gPad, 4, 0, 0.01)
             h2Ddirpng = os.path.join(outdire,'hist2D/png')
             h2Ddirpdf = os.path.join(outdire,'hist2D/pdf')
             h2Ddireps = os.path.join(outdire,'hist2D/eps')
@@ -858,7 +882,7 @@ if __name__ == '__main__':
                 H2D.GetXaxis().SetLabelSize(0.04)
                 H2D.GetYaxis().SetTitleFont(42)
                 H2D.GetYaxis().SetTitleSize(0.04)
-                H2D.GetYaxis().SetTitleOffset(0.8)
+                H2D.GetYaxis().SetTitleOffset(1.1)
                 H2D.GetYaxis().SetLabelFont(42)
                 H2D.GetYaxis().SetLabelSize(0.05)
                 H2D.GetYaxis().SetLabelOffset(0.007)
@@ -866,10 +890,62 @@ if __name__ == '__main__':
                 H2D.GetYaxis().SetNdivisions(510)
                 H2D.GetZaxis().SetLabelFont(42)
                 H2D.GetZaxis().SetLabelSize(0.04)
-                H2D.SetMinimum(0.0)
-                H2D.Draw("HIST COLZ")
+                H2D.SetMinimum(0)
+                H2D.Draw("COLZ")
                 if any('LogZ' in e for e in var) :
                     ROOT.gPad.SetLogz()
+
+                # this to put the ration of higlighted box on the top of the plot or not
+                exttext = ""
+                put_ratio = False
+                if any('BOX' in e for e in var) :
+                    idxx,_ = findItem(var , 'BOX')
+                    BoxX1 = var[idxx][1][2]
+                    BoxX2 = var[idxx][1][3]
+                    BoxY1 = var[idxx][1][0]
+                    BoxY2 = var[idxx][1][1]
+                    put_ratio = var[idxx][2]
+                    b = ROOT.TBox(BoxX1, BoxY1, BoxX2, BoxY2)
+                    b.SetFillStyle(0)
+                    b.SetLineWidth(4)
+                    b.SetLineColor(ROOT.kRed)
+                    b.Draw()
+                    if put_ratio : 
+                        x1 = H2D.GetXaxis().FindBin(BoxX1) ; x2 = H2D.GetXaxis().FindBin(BoxX2)
+                        y1 = H2D.GetYaxis().FindBin(BoxY1) ; y2 = H2D.GetYaxis().FindBin(BoxY2)
+                        box_int = round(H2D.Integral(x1,x2,y1,y2),2)
+                        integ = round(H2D.Integral(),2)
+                        exttext = str(round(box_int/(integ+0.0001),2))
+                        ext_text =  ROOT.TPaveText(0.1,0.0,0.39,0.1,"NDC")
+                        ext_text.SetFillColor(0);
+                        ext_text.SetFillStyle(0);
+                        ext_text.SetLineColor(0);
+                        ext_text.SetTextAlign(22);
+                        ext_text.SetTextFont(42);
+                        ext_text.AddText("ratio(BOX/total)="+exttext)
+                        ext_text.SetBorderSize(0);
+                        ext_text.Draw()
+                # for some reason CMS lumi overwrites the Z-axis
+                text_1 =  ROOT.TPaveText(0.8-0.15,0.995-0.1,0.94,0.996,"NDC")
+                text_1.SetFillColor(0);
+                text_1.SetFillStyle(0);
+                text_1.SetLineColor(0);
+                text_1.SetTextAlign(22);
+                text_1.SetTextFont(42);
+                text_1.AddText(str(lumi)+" fb^{-1} (13 TeV)")
+                text_1.SetBorderSize(0);
+                text_1.Draw()
+
+                text_2 =  ROOT.TPaveText(0.1,0.92,0.39,0.98,"NDC")
+                text_2.SetFillColor(0);
+                text_2.SetFillStyle(0);
+                text_2.SetLineColor(0);
+                text_2.SetTextAlign(22);
+                text_2.SetTextFont(42);
+                text_2.AddText("#bf{CMS} #it{Preliminary}")##splitline{}{}
+                text_2.SetBorderSize(0);
+                text_2.Draw()
+
                 canv.SaveAs(h2Ddirpng+'/'+str(args.year)[2:]+"-"+H2D.GetName()+'.png')
                 canv.SaveAs(h2Ddirpdf+'/'+str(args.year)[2:]+"-"+H2D.GetName()+'.pdf')
                 canv.SaveAs(h2Ddireps+'/'+str(args.year)[2:]+"-"+H2D.GetName()+'.eps')
@@ -882,3 +958,4 @@ if __name__ == '__main__':
         #del canv
         outroot.cd('')
     outroot.Close()
+    os.system('rm -rf '+tempofile)

@@ -30,6 +30,7 @@ CRs1_cut_strings = sr.CRs_1_cut_strings
 CRs2_cut_strings = sr.CRs_2_cut_strings
 CRs3_cut_strings = sr.CRs_3_cut_strings
 QCD_cut_strings = sr.cut_strings_QCD_CS
+AntiSel_SR = sr.AntiSel_SR
 
 
 def make1D(var,style,name,ranges):
@@ -95,8 +96,24 @@ if __name__ == '__main__':
     parser.add_argument('--doSyst','-syst' ,help='save the systematic shapes',default=False, action='store_true')
     parser.add_argument("-Y", "--year", default=2016, help="which ear to run on 2016/17/18",metavar='year')
     parser.add_argument('--mass','-m' ,help='which cut dicts to be applied',default='1500_1000', metavar='mass')
+    parser.add_argument('--channel','-cha' ,help='select e/mu channels to run it can be e or mu',default='e_mu', metavar='channel')
 
     args = parser.parse_args()
+
+    if args.channel == "mu" : 
+        SRs_cut_strings  +=  "&& (nEl == 0 && nMu == 1 )"
+        CRs1_cut_strings +=  "&& (nEl == 0 && nMu == 1 )"
+        CRs2_cut_strings +=  "&& (nEl == 0 && nMu == 1 )"
+        CRs3_cut_strings +=  "&& (nEl == 0 && nMu == 1 )"
+        QCD_cut_strings  +=  "&& (nEl == 0 && nMu == 1 )"
+        AntiSel_SR       +=  "&& (nEl == 0 && nMu == 1 )"
+    elif args.channel == "e":
+        SRs_cut_strings  +=  "&& (nEl == 1 && nMu == 0 )"
+        CRs1_cut_strings +=  "&& (nEl == 1 && nMu == 0 )"
+        CRs2_cut_strings +=  "&& (nEl == 1 && nMu == 0 )"
+        CRs3_cut_strings +=  "&& (nEl == 1 && nMu == 0 )"
+        QCD_cut_strings  +=  "&& (nEl == 1 && nMu == 0 )"
+        AntiSel_SR       +=  "&& (nEl == 1 && nMu == 0 )"
 
     if int(args.year) != 2016 : 
         for key in All_files : 
@@ -161,6 +178,7 @@ if __name__ == '__main__':
     elif cutdict == 'CR2' : cutdict_ = CRs2_cut_strings
     elif cutdict == 'CR3' : cutdict_ = CRs3_cut_strings
     elif cutdict == 'QCDCR' : cutdict_ = QCD_cut_strings
+    elif cutdict == 'AntiSR' : cutdict_ = AntiSel_SR
     
     if int(args.year) == 2018 :
         cutdict_+="&& (!isData || (Run < 319077) || ( nHEMJetVeto == 0 && nHEMEleVeto == 0))"
@@ -232,6 +250,8 @@ if __name__ == '__main__':
             if 'Data' in g : lum = '1.0' 
             else  : lum = lumi
             # make the hist 
+            if "Lp" in var : ranges = [30, -0.5, 2.5]
+            else : ranges = [10000,0.0,1.0]
             hist = make1D(v,All_files[g],v+'_'+cutdict+"_nom",ranges)
             chain.Draw(v +' >> '+v+'_'+cutdict+"_nom", scale+'*'+lum+'*(1)',"goff")
             if args.doSyst : 
@@ -263,7 +283,7 @@ if __name__ == '__main__':
     elif batch :
         cmd_array = []
         print('batch mode activated ...')
-        regions = ['CR1','QCDCR']#['SR','CR1','CR2','CR3','QCDCR']
+        regions = ['SR','CR1','CR2','CR3','QCDCR','AntiSR']#['AntiSR']
         #sub = htcondor.Submit("")
         ##Condor configuration
         
@@ -336,7 +356,7 @@ if __name__ == '__main__':
             exec.write("cd "+comd[0]+"\n")
             exec.write("echo 'running job' >> "+confDir+"/processing"+"\n")
             exec.write("echo "+comd[0]+"\n")
-            exec.write(pyth+" RoShapes_0b_1SigCla.py --indir "+comd[1]+" --outdir "+comd[2]+" --lumi "+comd[3]+" --group "+comd[4]+" --cutdict "+comd[5]+" --year "+comd[7])
+            exec.write(pyth+" RoShapes_0b_1SigCla.py --indir "+comd[1]+" --outdir "+comd[2]+" --lumi "+comd[3]+" --group "+comd[4]+" --cutdict "+comd[5]+" --year "+comd[7]+" -cha "+ args.channel)
             if args.doSyst : 
                 exec.write(" --doSyst")
             if sig :

@@ -115,14 +115,13 @@ if __name__ == '__main__':
                 if not '_'+syst in hname: continue
             hist = tdir.Get(hname)
             if not 'sig' in hname : continue
-            for obkg in others_bkg : 
-                if (obkg in bkg and '_SR' in hname ): otherSR.Add(hist)
-                if (obkg in bkg and '_CR1' in hname ): otherCR1.Add(hist)
-                if (obkg in bkg and '_CR2' in hname ): otherCR2.Add(hist)
-                if (obkg in bkg and '_CR3' in hname ): otherCR3.Add(hist)
-                if (obkg in bkg and '_CR4' in hname ): otherCR4.Add(hist)
-                if (obkg in bkg and '_QCDCR' in hname ): otherQCDCR.Add(hist) 
-            
+            if bkg in others_bkg : 
+                if ('_SR' in hname ): otherSR.Add(hist)
+                if ('_CR1' in hname ): otherCR1.Add(hist)
+                if ('_CR2' in hname ): otherCR2.Add(hist)
+                if ('_CR3' in hname ): otherCR3.Add(hist)
+                if ('_CR4' in hname ): otherCR4.Add(hist)
+                if ('_QCDCR' in hname ): otherQCDCR.Add(hist) 
             
             if ('_SR' in hname and not 'Data' in bkg): 
                 txtSR.write("{:<20}{:<20}{:<20}".format(hist.GetTitle(),round(hist.IntegralAndError(0, hist.GetNbinsX()+1, err), 2), round(err, 2))+"\n")
@@ -178,7 +177,7 @@ if __name__ == '__main__':
     WJ_4 = round(otherCR4.IntegralAndError(0, otherCR4.GetNbinsX()+1, err_14),2)
     txtQCDCR.write((60 *('='))+'\n')
     txtQCDCR.write("{:<20}{:<20}{:<20}".format(otherQCDCR.GetTitle(),round(otherQCDCR.IntegralAndError(0, otherQCDCR.GetNbinsX()+1, err_24), 2), round(err_24, 2))+"\n")
-    WJ_QCDCR = round(otherQCDCR.IntegralAndError(0, otherQCDCR.GetNbinsX()+1, err_24),2)
+    TTJ_QCDCR = round(otherQCDCR.IntegralAndError(0, otherQCDCR.GetNbinsX()+1, err_24),2)
     
 
     df_dict['Category'] = ["T1tttt Cat.", "TTJets(1l) Cat.","TTJets(2l) Cat.","WJets Cat.","QCDCS"]

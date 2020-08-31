@@ -5,7 +5,7 @@ def tdrGrid( gridOn):
   tdrStyle.SetPadGridY(gridOn)
 
 #fixOverlay: Redraws the axis
-def fixOverlay(): ROOT.gPad.RedrawAxis()
+def fixOverlay(): rt.gPad.RedrawAxis()
 
 def setTDRStyle():
   tdrStyle =  rt.TStyle("tdrStyle","Style for P-TDR")

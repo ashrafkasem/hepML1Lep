@@ -1,4 +1,4 @@
-./AlphaBetaGammadelta_0b_1sigCla.py --infile shapes_17_syst_1SigCla_0b.root --outdir alphabetagamma17_syst_1sigCla_0b
+./AlphaBetaGammadelta_0b_minusQCD.py --infile shapes/shapes_17_syst_1SigCla_0b.root --outdir abg_minusQCD/0b/alphabetagamma17_syst_1sigCla_0b
 
 ./AlphaBetaGammadelta_0b_1sigCla.py --infile shapes_17_syst_1SigCla_0b.root --outdir alphabetagamma17_syst_1sigCla_0b --syst Jec_Up
 ./AlphaBetaGammadelta_0b_1sigCla.py --infile shapes_17_syst_1SigCla_0b.root --outdir alphabetagamma17_syst_1sigCla_0b --syst btagSF_b_Up

@@ -262,8 +262,8 @@ class score(object):
         plt.subplot(1, 2, 2)
         #fig = plt.figure(figsize=(4, 4))
         # Extract loss on training and validation dataset and plot them together
-        plt.plot(epochs, history.history["acc"], "-", label="Training")
-        plt.plot(epochs, history.history["val_acc"], "-", label="Validation")
+        plt.plot(epochs, history.history["accuracy"], "-", label="Training")
+        plt.plot(epochs, history.history["val_accuracy"], "-", label="Validation")
         plt.xlabel("Epochs"), plt.ylabel("Accuracy")
         #plt.yscale("log")
         #plt.ylim(0.5,0.95)
